@@ -100,26 +100,101 @@ python src/train.py
 
 ---
 
+## 🌐 Prediction API (FastAPI)
+
+The trained model is served as a REST API so anyone can get a rent prediction over HTTP — no Python required on the client side.
+
+```bash
+# Start the API locally
+uvicorn api:app --reload
+
+# Open the interactive docs (try predictions in the browser):
+#   http://127.0.0.1:8000/docs
+```
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET`  | `/` | Health check |
+| `GET`  | `/localities` | List all 20 valid localities, grouped by tier |
+| `POST` | `/predict` | Predict monthly rent from flat details |
+
+### Example request
+
+```bash
+curl -X POST http://127.0.0.1:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{
+    "locality": "Koramangala", "bhk": 2, "area_sqft": 1100,
+    "furnishing": "Fully Furnished", "floor": 3, "total_floors": 10,
+    "building_age_yrs": 5, "tenant_preferred": "Any",
+    "dist_metro_km": 0.8, "dist_techpark_km": 2.5,
+    "gym": 1, "power_backup": 1, "lift": 1, "security": 1, "parking": 1
+  }'
+```
+
+```json
+{ "predicted_rent": 58048, "predicted_rent_formatted": "₹58,048", ... }
+```
+
+The API reuses the **exact same** `engineer_features()` pipeline as training — guaranteeing no training/serving skew. Inputs are validated with Pydantic (unknown localities, invalid furnishing, `bhk=0`, negative area are all rejected with clear errors).
+
+---
+
+## ✅ Testing
+
+```bash
+pytest tests/ -v
+```
+
+24 tests covering:
+- **Feature engineering** — correctness of every engineered feature, boundary conditions (age buckets, ground floor), input immutability (`.copy()` purity), and documented edge cases (unknown locality → NaN)
+- **API** — health checks, prediction sanity (premium > budget, 3BHK > 1BHK), and validation rejection of bad inputs
+
+---
+
+## 🚀 Deployment
+
+Two ready-to-use options:
+
+**Render (free, one-click):** push to GitHub → New + → Blueprint → select repo. `render.yaml` is auto-detected.
+
+**Docker:**
+```bash
+docker build -t blr-rental-predictor .
+docker run -p 8000:8000 blr-rental-predictor
+```
+
+---
+
 ## 📁 Project Structure
 
 ```
 blr-rental-predictor/
 ├── README.md
 ├── requirements.txt
+├── api.py                    # FastAPI prediction server
+├── Dockerfile                # containerised deployment
+├── render.yaml               # one-click Render deploy config
 ├── data/
 │   ├── generate_data.py      # synthetic data generation with realistic BLR distributions
 │   └── bengaluru_rentals.csv # generated dataset (3000 rows)
 ├── src/
-│   ├── features.py           # all feature engineering
-│   ├── train.py              # full pipeline
+│   ├── features.py           # all feature engineering (shared by train + API)
+│   ├── train.py              # full training pipeline
 │   └── evaluate.py           # metrics, plots, SHAP
-└── outputs/                  # all saved plots and models
+├── tests/
+│   ├── test_features.py      # unit tests for feature engineering
+│   └── test_api.py           # integration tests for the API
+└── outputs/                  # saved plots and models
     ├── eda_overview.png
     ├── correlation_heatmap.png
     ├── actual_vs_pred_*.png
     ├── residuals_*.png
     ├── shap_summary.png
-    └── xgb_model.pkl
+    ├── scaler.pkl
+    └── xgb_model.pkl         # committed so the API runs without retraining
 ```
 
 ---
