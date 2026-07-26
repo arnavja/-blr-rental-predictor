@@ -1,6 +1,5 @@
 """
 train.py
---------
 End-to-end pipeline for the Bengaluru Rental Price Predictor.
 
 Run:
@@ -46,9 +45,7 @@ from src.evaluate  import (regression_metrics, print_summary_table,
 os.makedirs("outputs", exist_ok=True)
 
 
-# ─────────────────────────────────────────────
 #  STEP 1 — LOAD DATA
-# ─────────────────────────────────────────────
 
 def load_data(path: str = "data/bengaluru_rentals.csv") -> pd.DataFrame:
     print(f"\n[1/6] Loading data from {path}...")
@@ -60,9 +57,7 @@ def load_data(path: str = "data/bengaluru_rentals.csv") -> pd.DataFrame:
     return df
 
 
-# ─────────────────────────────────────────────
 #  STEP 2 — EDA
-# ─────────────────────────────────────────────
 
 def run_eda(df: pd.DataFrame):
     print("\n[2/6] Running EDA...")
@@ -128,9 +123,7 @@ def run_eda(df: pd.DataFrame):
     print("  Saved → outputs/correlation_heatmap.png")
 
 
-# ─────────────────────────────────────────────
 #  STEP 3 — PREPARE FEATURES
-# ─────────────────────────────────────────────
 
 def prepare(df: pd.DataFrame):
     print("\n[3/6] Engineering features...")
@@ -153,15 +146,13 @@ def prepare(df: pd.DataFrame):
     return X_train, X_test, y_train, y_test, y_log_train, y_log_test
 
 
-# ─────────────────────────────────────────────
 #  STEP 4 — TRAIN MODELS
-# ─────────────────────────────────────────────
 
 def train_models(X_train, X_test, y_train, y_test, y_log_train, y_log_test):
     print("\n[4/6] Training models...")
     results = {}
 
-    # ── Model 1: Ridge Regression (baseline) ────────────────────────────────
+    # Model 1: Ridge Regression (baseline)
     print("\n  Training Ridge Regression (baseline)...")
     scaler      = StandardScaler()
     Xtr_scaled  = scaler.fit_transform(X_train)
@@ -176,7 +167,7 @@ def train_models(X_train, X_test, y_train, y_test, y_log_train, y_log_test):
     plot_actual_vs_predicted("Ridge Regression", y_test, ridge_pred)
     results["Ridge Regression"] = m
 
-    # ── Model 2: Random Forest ────────────────────────────────────────────────
+    # Model 2: Random Forest
     print("\n  Training Random Forest...")
     rf = RandomForestRegressor(
         n_estimators=300,
@@ -194,7 +185,7 @@ def train_models(X_train, X_test, y_train, y_test, y_log_train, y_log_test):
     plot_actual_vs_predicted("Random Forest", y_test, rf_pred)
     results["Random Forest"] = m
 
-    # ── Model 3: XGBoost + RandomizedSearchCV ───────────────────────────────
+    # Model 3: XGBoost + RandomizedSearchCV
     print("\n  Training XGBoost with hyperparameter search...")
     param_dist = {
         "n_estimators":      [200, 300, 400, 500],
@@ -230,18 +221,14 @@ def train_models(X_train, X_test, y_train, y_test, y_log_train, y_log_test):
     return results, xgb, scaler, xgb_pred, y_test
 
 
-# ─────────────────────────────────────────────
 #  STEP 5 — SHAP EXPLAINABILITY
-# ─────────────────────────────────────────────
 
 def explain(xgb_model, X_test):
     print("\n[5/6] SHAP explainability...")
     plot_shap(xgb_model, X_test, FEATURE_COLS)
 
 
-# ─────────────────────────────────────────────
 #  STEP 6 — SAVE & SUMMARISE
-# ─────────────────────────────────────────────
 
 def save_and_summarise(results, xgb_model, scaler):
     print("\n[6/6] Summary & saving...")
@@ -254,9 +241,7 @@ def save_and_summarise(results, xgb_model, scaler):
     print("\n✅ Done. Check outputs/ for all plots and saved model.")
 
 
-# ─────────────────────────────────────────────
 #  MAIN
-# ─────────────────────────────────────────────
 
 if __name__ == "__main__":
     df = load_data("data/bengaluru_rentals.csv")

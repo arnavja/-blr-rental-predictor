@@ -1,6 +1,5 @@
 """
 generate_data.py
-----------------
 Generates a realistic synthetic Bengaluru rental dataset.
 
 Why synthetic?
@@ -21,12 +20,10 @@ import pandas as pd
 np.random.seed(42)
 N = 3000
 
-# ─────────────────────────────────────────────────────────────
 #  LOCALITY PROFILES
 #  Each entry: (base_rent_1bhk, multiplier_2bhk, multiplier_3bhk,
 #               dist_metro_km, dist_techpark_km, premium_score)
 #  premium_score influences amenities probability
-# ─────────────────────────────────────────────────────────────
 
 LOCALITY_PROFILES = {
     # Premium

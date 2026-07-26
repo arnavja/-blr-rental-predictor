@@ -1,6 +1,5 @@
 """
 features.py
------------
 Feature engineering for the Bengaluru Rental Price Predictor.
 
 Key ideas:
@@ -15,7 +14,7 @@ import pandas as pd
 import numpy as np
 
 
-# ── Locality tier map ────────────────────────────────────────────────────────
+# Locality tier map
 # Instead of 20 one-hot columns, encode locality as a tier (1-4).
 # This reduces dimensionality and teaches the model ordinal locality value.
 
@@ -47,23 +46,23 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     """
     df = df.copy()
 
-    # ── Encode categoricals ──────────────────────────────────────────────────
+    # Encode categoricals
     df["locality_tier"] = df["locality"].map(LOCALITY_TIER)
     df["furnishing_enc"] = df["furnishing"].map(FURNISHING_MAP)
     df["tenant_enc"]     = df["tenant"].map(TENANT_MAP) if "tenant" in df.columns \
                            else df["tenant_preferred"].map(TENANT_MAP)
 
-    # ── Floor ratio (more meaningful than raw floor number) ─────────────────
+    # Floor ratio (more meaningful than raw floor number)
     # 0.0 = ground floor, 1.0 = top floor
     df["floor_ratio"] = df["floor"] / (df["total_floors"] + 1e-9)
 
-    # ── Amenity score ────────────────────────────────────────────────────────
+    # Amenity score
     # Sum of all binary amenity columns → single "quality of building" score
     amenity_cols = ["gym", "swimming_pool", "power_backup",
                     "lift", "security", "parking", "club_house"]
     df["amenity_score"] = df[amenity_cols].sum(axis=1)
 
-    # ── Interaction features ─────────────────────────────────────────────────
+    # Interaction features
     # Area per BHK: studio-sized 2BHK should cost less than spacious 2BHK
     df["area_per_bhk"] = df["area_sqft"] / df["bhk"]
 

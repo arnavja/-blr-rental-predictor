@@ -1,6 +1,5 @@
 """
 evaluate.py
------------
 Evaluation utilities for regression: RMSE, MAE, R², residual plots,
 prediction vs actual plot, and SHAP explainability.
 """
@@ -17,9 +16,7 @@ OUTPUT_DIR = "outputs"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
-# ─────────────────────────────────────────────
 #  REGRESSION METRICS
-# ─────────────────────────────────────────────
 
 def regression_metrics(name: str, y_true, y_pred) -> dict:
     """
@@ -54,9 +51,7 @@ def print_summary_table(results: dict):
     print("="*62)
 
 
-# ─────────────────────────────────────────────
 #  ACTUAL vs PREDICTED PLOT
-# ─────────────────────────────────────────────
 
 def plot_actual_vs_predicted(name: str, y_true, y_pred, save=True):
     """
@@ -87,9 +82,7 @@ def plot_actual_vs_predicted(name: str, y_true, y_pred, save=True):
     plt.show()
 
 
-# ─────────────────────────────────────────────
 #  RESIDUAL PLOT
-# ─────────────────────────────────────────────
 
 def plot_residuals(name: str, y_true, y_pred, save=True):
     """
@@ -129,9 +122,7 @@ def plot_residuals(name: str, y_true, y_pred, save=True):
     plt.show()
 
 
-# ─────────────────────────────────────────────
 #  SHAP EXPLAINABILITY
-# ─────────────────────────────────────────────
 
 def plot_shap(model, X_test, feature_names: list, save=True):
     """

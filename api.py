@@ -1,6 +1,5 @@
 """
 api.py
-------
 FastAPI prediction server for the Bengaluru Rental Price Predictor.
 
 Run locally:
@@ -21,7 +20,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from src.features import engineer_features, FEATURE_COLS, LOCALITY_TIER
 
-# ── Load model & scaler once at startup ──────────────────────────────────────
+# Load model & scaler once at startup
 MODEL_PATH  = os.path.join(os.path.dirname(__file__), "outputs", "xgb_model.pkl")
 SCALER_PATH = os.path.join(os.path.dirname(__file__), "outputs", "scaler.pkl")
 
@@ -36,7 +35,7 @@ except FileNotFoundError as e:
         "Run `python src/train.py` first to generate outputs/xgb_model.pkl"
     )
 
-# ── App ───────────────────────────────────────────────────────────────────────
+# App
 app = FastAPI(
     title="Bengaluru Rental Price Predictor",
     description=(
@@ -48,7 +47,7 @@ app = FastAPI(
 )
 
 
-# ── Input schema ──────────────────────────────────────────────────────────────
+# Input schema
 class RentalInput(BaseModel):
     locality: str = Field(..., description="One of the 20 trained Bengaluru localities")
     bhk: int = Field(..., ge=1, le=5, description="Number of bedrooms")
@@ -109,7 +108,7 @@ class RentalInput(BaseModel):
         return v
 
 
-# ── Output schema ─────────────────────────────────────────────────────────────
+# Output schema
 class RentalPrediction(BaseModel):
     predicted_rent: int = Field(..., description="Predicted monthly rent in ₹")
     predicted_rent_formatted: str = Field(..., description="Human-readable rent (e.g. ₹32,500)")
@@ -120,7 +119,7 @@ class RentalPrediction(BaseModel):
     note: str = "Prediction based on XGBoost model trained on Bengaluru 2023-24 synthetic rental data."
 
 
-# ── Routes ────────────────────────────────────────────────────────────────────
+# Routes
 @app.get("/", summary="Health check")
 def root():
     return {

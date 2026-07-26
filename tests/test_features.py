@@ -1,6 +1,5 @@
 """
 test_features.py
-----------------
 Unit tests for the feature engineering pipeline.
 
 Run:  pytest tests/ -v
@@ -19,7 +18,7 @@ from src.features import (
 )
 
 
-# ── A reusable valid raw row ──────────────────────────────────────────────────
+# A reusable valid raw row
 def make_row(**overrides):
     base = {
         "locality": "Koramangala",
@@ -40,7 +39,7 @@ def make_row(**overrides):
     return pd.DataFrame([base])
 
 
-# ── Core correctness ──────────────────────────────────────────────────────────
+# Core correctness
 def test_all_feature_cols_present():
     """Output must contain every column the model expects."""
     out = engineer_features(make_row())
@@ -102,7 +101,7 @@ def test_age_bucket_boundaries():
     assert engineer_features(make_row(building_age_yrs=20))["age_bucket"].iloc[0] == 0  # old
 
 
-# ── Safety / purity ───────────────────────────────────────────────────────────
+# Safety / purity
 def test_does_not_mutate_input():
     """engineer_features must not modify the caller's DataFrame (it uses .copy())."""
     df = make_row()
@@ -119,7 +118,7 @@ def test_handles_tenant_alias_column():
     assert out["tenant_enc"].iloc[0] == TENANT_MAP["Any"]
 
 
-# ── Documented edge cases (these currently EXPOSE limitations) ─────────────────
+# Documented edge cases (these currently EXPOSE limitations)
 def test_unknown_locality_produces_nan():
     """
     Known limitation: unknown localities map to NaN silently.
